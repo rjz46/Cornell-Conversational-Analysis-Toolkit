@@ -1,4 +1,14 @@
-"""Constructiveness analysis on StreetCrowd: turn-level features"""
+"""Constructiveness analysis on StreetCrowd: turn-level features.
+
+This is a reimplementation of the features from our paper,
+
+Conversational markers of constructive discussions. Vlad Niculae and
+Cristian Danescu-Niculescu-Mizil. In: Proc. of NAACL 2016.
+http://vene.ro/constructive/
+
+See the `test` function for a usage example.
+"""
+
 # Author: Vlad Niculae <vlad@vene.ro>
 # License: Simplified BSD
 

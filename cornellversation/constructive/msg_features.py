@@ -1,4 +1,14 @@
-"""Constructiveness analysis on StreetCrowd: message-level features"""
+"""Constructiveness analysis on StreetCrowd: message-level features.
+
+This is a reimplementation of the features from our paper,
+
+Conversational markers of constructive discussions. Vlad Niculae and
+Cristian Danescu-Niculescu-Mizil. In: Proc. of NAACL 2016.
+https://vene.ro/constructive/
+
+See the `test` function for a usage example.
+"""
+
 # Author: Vlad Niculae <vlad@vene.ro>
 # License: Simplified BSD
 
@@ -67,7 +77,6 @@ with open(os.path.join('lexicons', 'my_hedges.txt')) as f:
 
 
 lex_matcher = Lexicon(lexicons)
-
 
 
 def get_content_tagged(words, tags):
@@ -175,6 +184,9 @@ def message_features(chat, reasons=None, stopwords=mallet_stopwords):
 
 
 def test():
+
+    # Sample run on toy data slightly adapted from the real dataset.
+    # reasons: (username, tokens, pos_tags)
     test_reasons = [(
             'User00511',
             'saw a sign that said " YIELD right of way " so uk somewhere ?',
@@ -193,6 +205,7 @@ def test():
         )
     ]
 
+    # chats: (username, tokens, pos_tags, timestamp)
     test_chat = [[
             "User00510",
             "bunch of *** *** ***",
