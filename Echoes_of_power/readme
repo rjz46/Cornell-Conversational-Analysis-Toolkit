@@ -1,0 +1,29 @@
+This is the implement of Echoes_of_power model.
+paper link:
+http://www.cs.cornell.edu/~cristian/Echoes_of_power.html
+
+This project provides two basic functions.
+1. returns the level of coordination between each pair in the data
+2. predict the status using svm
+
+You should provide a json file as the input.
+
+The json should contain
+	'id': unique ID of the utterance
+    'replyToId': the id of the utterance to which this utterance was a reply to, -1 if this utterance was a root
+	'unixReviewTime': the unix time extracted from the timestamp
+    'profileName': profilename of the utterance
+    'reviewText': the text of the utterance
+    'consider'(optional, the default value = 1): whether this utterance is considered or not
+	'status'(not necessary): to show whether the author is an admin
+
+You can run main.py using your json file as input to get the result. The details are provided in code.
+
+we use Wikipedia Talk Page Conversations Corpus as a example. You can find it in the former link.
+In order to adjust the format of the input, run refine.py and main.py sequently.
+ 
+If you have any suggestions or questions, please be free to contact me. 
+It's my great pleasure to discuss with you.
+ 
+author: Hanyuan Shi
+email: shihanyuan@sjtu.edu.cn
