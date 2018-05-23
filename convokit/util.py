@@ -27,6 +27,8 @@ def download(name, verbose=True):
             "datasets/tennis-corpus/full.json",
         "wiki-corpus": "http://zissou.infosci.cornell.edu/socialkit/" + \
             "datasets/wiki-corpus/full.json",
+        "reddit-iama-corpus": "http://zissou.infosci.cornell.edu/socialkit/" + \
+            "datasets/reddit-iama-corpus/10k.json",
         "parliament-motifs": [
             "http://zissou.infosci.cornell.edu/socialkit/" + \
             "datasets/parliament-corpus/parliament-motifs/answer_arcs.json",
@@ -118,7 +120,8 @@ def download(name, verbose=True):
             "http://zissou.infosci.cornell.edu/socialkit/" + \
             "datasets/wiki-corpus/wiki-motifs/question_tree_uplinks.json"
 
-        ]
+        ],
+        "reddit-iama-motifs": []
 
     }
     name = name.lower()
