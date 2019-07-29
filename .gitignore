@@ -27,3 +27,4 @@ examples/hyperconvo/.ipynb_checkpoints
 *.idea
 venv/
 *.iml
+venv-triadmotif/
