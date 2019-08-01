@@ -546,7 +546,7 @@ class HyperConvo(Transformer):
                         and ut.get("reply_to") != exclude_id:
                     reply_edges.append((ut.get("id"), ut.get("reply_to")))
                     speaker_to_reply_tos[ut.user].append(ut.get("reply_to"))
-                    speaker_target_pairs.add((ut.user, uts[ut.reply_to].user, ut.timestamp, ut.text, ut.reply_to, ut.root))
+                    speaker_target_pairs.add((ut.user, uts[ut.reply_to].user, ut.timestamp, ut.text, ut.reply_to, ut.id, ut.root))
                 G.add_node(ut.get("id"), info=ut.__dict__)
         # hypernodes
         for u, ids in username_to_utt_ids.items():
