@@ -22,6 +22,9 @@ Examples: [extracting common question types in U.K. parliament](https://github.c
 A method for extracting structural features of conversations through a hypergraph representation.  
 Example: [hypergraph creation and feature extraction, visualization and interpretation on a subsample of Reddit](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/examples/hyperconvo/demo.ipynb).
 
+### [Linguistic diversity in conversations (Coming Soon!)](http://www.cs.cornell.edu/~cristian/Finding_your_voice__linguistic_development.html)
+A method to compute the linguistic diversity of individuals within their own conversations, and between other individuals in a population.  
+
 ## Datasets
 ConvoKit ships with several datasets ready for use "out-of-the-box".
 These datasets can be downloaded using the `convokit.download()` [helper function](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/convokit/util.py).  Alternatively you can access them directly [here](http://zissou.infosci.cornell.edu/convokit/datasets/).

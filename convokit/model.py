@@ -192,14 +192,14 @@ class Utterance:
 class Conversation:
     """Represents a discrete subset of utterances in the dataset, connected by a
     reply-to chain.
-    
+
     :param owner: The Corpus that this Conversation belongs to
     :param id: The unique ID of this Conversation
     :param utterances: A list of the IDs of the Utterances in this Conversation
     :param meta: Table of initial values for conversation-level metadata
 
     :ivar meta: A dictionary-like view object providing read-write access to
-        conversation-level metadata. For utterance-level metadata, use 
+        conversation-level metadata. For utterance-level metadata, use
         Utterance.meta. For user-level metadata, use User.meta. For corpus-level
         metadata, use Corpus.meta.
     """
@@ -234,10 +234,10 @@ class Conversation:
     id = property(_get_id)
 
     def get_utterance_ids(self) -> List[str]:
-        """Produces a list of the unique IDs of all utterances in the 
-        Conversation, which can be used in calls to get_utterance() to retrieve 
+        """Produces a list of the unique IDs of all utterances in the
+        Conversation, which can be used in calls to get_utterance() to retrieve
         specific utterances. Provides no ordering guarantees for the list.
-        
+
         :return: a list of IDs of Utterances in the Conversation
         """
         # we construct a new list instead of returning self._utterance_ids in
@@ -246,9 +246,9 @@ class Conversation:
         return [ut_id for ut_id in self._utterance_ids]
 
     def get_utterance(self, ut_id: Hashable) -> Utterance:
-        """Looks up the Utterance associated with the given ID. Raises a 
+        """Looks up the Utterance associated with the given ID. Raises a
         KeyError if no utterance by that ID exists.
-        
+
         :return: the Utterance with the given ID
         """
         # delegate to the owner Corpus since Conversation does not itself own
@@ -256,19 +256,19 @@ class Conversation:
         return self._owner.get_utterance(ut_id)
 
     def iter_utterances(self) -> Generator[Utterance, None, None]:
-        """Generator allowing iteration over all utterances in the Conversation. 
+        """Generator allowing iteration over all utterances in the Conversation.
         Provides no ordering guarantees.
-        
+
         :return: Generator that produces Users
         """
         for ut_id in self._utterance_ids:
             yield self._owner.get_utterance(ut_id)
 
     def get_usernames(self) -> List[str]:
-        """Produces a list of names of all users in the Conversation, which can 
-        be used in calls to get_user() to retrieve specific users. Provides no 
+        """Produces a list of names of all users in the Conversation, which can
+        be used in calls to get_user() to retrieve specific users. Provides no
         ordering guarantees for the list.
-        
+
         :return: a list of usernames
         """
         if self._usernames is None:
@@ -281,7 +281,7 @@ class Conversation:
         return list(self._usernames)
 
     def get_user(self, username: str) -> User:
-        """Looks up the User with the given name. Raises a KeyError if no user 
+        """Looks up the User with the given name. Raises a KeyError if no user
         with that name exists.
 
         :return: the User with the given username
@@ -291,7 +291,7 @@ class Conversation:
         return self._owner.get_user(username)
 
     def iter_users(self) -> Generator[User, None, None]:
-        """Generator allowing iteration over all users in the Conversation. 
+        """Generator allowing iteration over all users in the Conversation.
         Provides no ordering guarantees.
 
         :return: Generator that produces Users.
@@ -452,22 +452,19 @@ class Corpus:
                     except Exception as e:
                         raise Exception("Could not load corpus. Expected json file, encountered error: \n" + str(e))
 
-            self.utterances = {}
-            self.all_users = set()
-            users_cache = {}   # avoids creating duplicate user objects
+            self.utterances = dict()
+            self.all_users = dict()
 
             for i, u in enumerate(utterances):
 
                 u = defaultdict(lambda: None, u)
                 user_key = u[KeyUser]
-                if user_key not in users_cache:
-                    users_cache[user_key] = User(name=u[KeyUser],
-                        meta=users_meta[u[KeyUser]])
+                if user_key not in self.all_users:
+                    self.all_users[user_key] = User(name=u[KeyUser], meta=users_meta[u[KeyUser]])
 
-                user = users_cache[user_key]
-                self.all_users.add(user)
+                user = self.all_users[user_key]
 
-                # temp fix
+                # temp fix for reddit reply_to
                 if "reply_to" in u:
                     reply_to_data = u["reply_to"]
                 else:
@@ -479,7 +476,7 @@ class Corpus:
                         text=u[KeyText], meta=u[KeyMeta])
                 self.utterances[ut.id] = ut
         elif utterances is not None:
-            self.all_users = set([u.user for u in utterances])
+            self.all_users = {u.user.name: u.user for u in utterances}
             self.utterances = {u.id: u for u in utterances}
 
         if merge_lines:
@@ -562,20 +559,25 @@ class Corpus:
             users = {u: Corpus.dump_helper_bin(self.get_user(u).meta, d_bin,
                 users_idx) for u in self.get_usernames()}
             json.dump(users, f)
+
             for name, l_bin in d_bin.items():
                 with open(os.path.join(dir_name, name + "-user-bin.p"), "wb") as f_pk:
                     pickle.dump(l_bin, f_pk)
+
         with open(os.path.join(dir_name, "conversations.json"), "w") as f:
             d_bin = defaultdict(list)
             convos = {c: Corpus.dump_helper_bin(self.get_conversation(c).meta,
                 d_bin, convos_idx) for c in self.get_conversation_ids()}
             json.dump(convos, f)
+
             for name, l_bin in d_bin.items():
                 with open(os.path.join(dir_name, name + "-convo-bin.p"), "wb") as f_pk:
                     pickle.dump(l_bin, f_pk)
+
         with open(os.path.join(dir_name, "utterances.json"), "w") as f:
             uts = []
             d_bin = defaultdict(list)
+
             for ut in self.iter_utterances():
                 uts.append({
                     KeyId: ut.id,
@@ -587,6 +589,7 @@ class Corpus:
                     KeyTimestamp: ut.timestamp
                 })
             json.dump(uts, f)
+
             for name, l_bin in d_bin.items():
                 with open(os.path.join(dir_name, name + "-bin.p"), "wb") as f_pk:
                     pickle.dump(l_bin, f_pk)
@@ -687,7 +690,7 @@ class Corpus:
                 if top_level_comment is None: continue # i.e. this is a post (root) utterance
                 threads[top_level_comment].append(ut)
         return {root: {utt.id: utt for utt in list(sorted(l,
-            key=lambda ut: ut.timestamp))[-suffix_len:prefix_len]}
+            key=lambda x: x.timestamp))[-suffix_len:prefix_len]}
             for root, l in threads.items()}
 
     def get_meta(self) -> Dict:
@@ -696,7 +699,7 @@ class Corpus:
     def add_meta(self, key: Hashable, value) -> None:
         self.meta[key] = value
 
-    def iter_users(self, selector: Optional[Callable[[User], bool]]=None) -> Set[User]:
+    def iter_users(self, selector: Optional[Callable[[User], bool]]=None) -> Generator[User, None, None]:
         """Get users in the dataset.
 
         :param selector: optional function that takes in a
@@ -708,12 +711,15 @@ class Corpus:
             used.
         """
         if selector is None:
-            return self.all_users
+            for user in self.all_users.values():
+                yield user
         else:
-            return set([u for u in self.all_users if selector(u)])
+            for user in self.all_users.values():
+                if selector(user):
+                    yield user
 
     def get_user(self, name: str) -> User:
-        return [u for u in self.all_users if u.name == name][0]
+        return self.all_users[name]
 
     def get_usernames(self, selector: Optional[Callable[[User], bool]]=None) -> Set[str]:
         """Get names of users in the dataset.
