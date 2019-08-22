@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple, Set
-from .model import Utterance, User
+from convokit.model import Utterance, User
 import random
 
 """
