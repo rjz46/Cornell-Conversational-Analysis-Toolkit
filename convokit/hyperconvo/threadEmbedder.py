@@ -3,8 +3,8 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 
-from .transformer import Transformer
-from .model import Corpus
+from convokit.transformer import Transformer
+from convokit.model import Corpus
 
 
 class ThreadEmbedder(Transformer):

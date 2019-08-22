@@ -51,6 +51,7 @@ Usage
 
 To download directly with ConvoKit: 
 
+>>> from convokit import Corpus, download
 >>> corpus = Corpus(filename=download("conversations-gone-awry-corpus"))
 
 

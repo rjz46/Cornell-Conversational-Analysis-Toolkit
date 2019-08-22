@@ -60,8 +60,9 @@ Additional information for the movies these conversations occur are included as 
 Usage
 -----
 
-To download directly with ConvoKit: 
+To download directly with ConvoKit:
 
+>>> from convokit import Corpus, download
 >>> corpus = Corpus(filename=download("movie-corpus"))
 
 

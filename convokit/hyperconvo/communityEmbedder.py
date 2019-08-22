@@ -3,9 +3,9 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.manifold import TSNE
 from collections import defaultdict
 
-from .transformer import Transformer
-from .model import Corpus
-from typing import Callable, Generator, Tuple, List, Dict, Set, Optional, Hashable
+from convokit.transformer import Transformer
+from convokit.model import Corpus
+from typing import Optional, Hashable
 
 
 class CommunityEmbedder(Transformer):

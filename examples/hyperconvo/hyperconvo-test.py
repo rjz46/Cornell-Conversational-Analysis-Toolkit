@@ -1,4 +1,5 @@
 import convokit
+print(convokit)
 import numpy as np
 
 # create corpus object

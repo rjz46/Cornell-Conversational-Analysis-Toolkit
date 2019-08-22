@@ -1,9 +1,4 @@
-"""Implements unsupervised identification of rhetorical roles in questions
-(http://www.cs.cornell.edu/~cristian/Asking_too_much.html).
 
-Example usage: extracting common question types in UK parliament
-(https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/examples/question-typology/parliament_questions_example.ipynb)
-"""
 
 import itertools
 import json
@@ -20,8 +15,8 @@ from sklearn.preprocessing import Normalizer
 from spacy.symbols import *
 from typing import Callable, Generator, Tuple, List, Dict, Set, Optional
 
-from .model import Corpus
-from .transformer import Transformer
+from convokit.model import Corpus
+from convokit.transformer import Transformer
 
 NP_LABELS = {nsubj, nsubjpass, dobj, iobj, pobj, attr}
 SPACY_META = "parsed"

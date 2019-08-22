@@ -4,7 +4,7 @@ import os
 import zipfile
 import json
 from typing import Dict
-from .model import Utterance, Corpus
+from convokit.model import Utterance, Corpus
 
 # returns a path to the dataset file
 def download(name: str, verbose: bool=True, data_dir: str=None, use_newest_version: bool=True) -> str:

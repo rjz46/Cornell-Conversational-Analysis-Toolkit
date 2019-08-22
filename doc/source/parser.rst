@@ -1,5 +1,5 @@
 Parser
 ============
 
-.. automodule:: convokit.parser
+.. automodule:: convokit.parser.parser
     :members:

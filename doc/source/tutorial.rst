@@ -120,8 +120,14 @@ dict_keys(['title', 'num_comments', 'domain', 'timestamp', 'subreddit', 'gilded'
 
 Other transformers can be applied in the same way, and even chained in sequence, as described in the :doc:`Core Concepts Tutorial </architecture>`.
 
+Additional notes
+----------------
 
+1. Some corpora are particularly large and may not be initializable in their entirety without significant computational resources. However, it is possible to `partially load utterances from a dataset <https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/tests/test_corpus_partial_load.ipynb>`_ to carry out processing of large corpora sequentially.
 
+2. It is possible to `merge two different Corpora (even when there are overlaps or conflicts in Corpus data) <https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/examples/merging/corpus_merge_demo.ipynb>`_
+
+3. See :doc:`examples` for more illustrations of Corpus and Transformer functionality.
 
 
 

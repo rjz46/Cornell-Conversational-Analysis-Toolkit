@@ -1,18 +1,11 @@
-"""Coordination features
-(https://www.cs.cornell.edu/~cristian/Echoes_of_power.html).
-
-Example usage: exploring the balance of power in the U.S. Supreme Court
-(https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/examples/coordination/examples.ipynb)
-"""
-
 import pkg_resources
 import re
-from .model import Corpus, User, Utterance
+from convokit.model import Corpus, User, Utterance
 from collections import defaultdict
 from typing import Callable, Tuple, List, Dict, Optional, Collection, Hashable, Union
 
 
-from .transformer import Transformer
+from convokit.transformer import Transformer
 
 CoordinationWordCategories = ["article", "auxverb", "conj", "adverb",
     "ppron", "ipron", "preps", "quant"]

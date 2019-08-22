@@ -1,5 +1,5 @@
 ThreadEmbedder
 ==============
 
-.. automodule:: convokit.threadEmbedder
+.. automodule:: convokit.hyperconvo.threadEmbedder
     :members:

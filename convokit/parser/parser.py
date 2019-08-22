@@ -1,9 +1,8 @@
 import spacy
 import sys
 
-from .transformer import Transformer
-from typing import Callable, Generator, Tuple, List, Dict, Set, Optional
-from .model import Corpus
+from convokit.transformer import Transformer
+from convokit.model import Corpus
 
 
 def _remove_tensor(doc):

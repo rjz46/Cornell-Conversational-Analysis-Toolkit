@@ -1,20 +1,15 @@
-"""Politeness Strategies features
-See Section 4 of http://www.cs.cornell.edu/~cristian/Conversations_gone_awry.html
 
-Example usage: understanding the (mis)use of politeness strategies in conversations gone awry on Wikipedia
-(https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/examples/conversations-gone-awry/Conversations_Gone_Awry_Prediction.ipynb)
-"""
 
 from typing import Callable, Generator, Tuple, List, Dict, Set, Optional, Hashable
 
 
 from collections import defaultdict
 
-from .politeness_api.features.politeness_strategies import get_politeness_strategy_features
-from .politeness_api.features.vectorizer import get_unigrams_and_bigrams
+from convokit.politeness_api.features.politeness_strategies import get_politeness_strategy_features
+from convokit.politeness_api.features.vectorizer import get_unigrams_and_bigrams
 
-from .transformer import Transformer
-from .model import Corpus
+from convokit.transformer import Transformer
+from convokit.model import Corpus
 
 class PolitenessStrategies(Transformer):
     """

@@ -58,8 +58,9 @@ Each round of question-answer pair is considered as a conversation. Metadata ass
 Usage
 -----
 
-To download directly with ConvoKit: 
+To download directly with ConvoKit:
 
+>>> from convokit import Corpus, download
 >>> corpus = Corpus(filename=download("tennis-corpus"))
 
 

@@ -1,5 +1,5 @@
 CommunityEmbedder
 =================
 
-.. automodule:: convokit.communityEmbedder
+.. automodule:: convokit.hyperconvo.communityEmbedder
     :members:

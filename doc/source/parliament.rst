@@ -52,6 +52,7 @@ Usage
 
 To download directly with ConvoKit: 
 
+>>> from convokit import Corpus, download
 >>> corpus = Corpus(filename=download("parliament-corpus"))
 
 
