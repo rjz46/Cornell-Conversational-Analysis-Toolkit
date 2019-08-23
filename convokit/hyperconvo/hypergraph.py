@@ -1,5 +1,7 @@
 import itertools
 from typing import Tuple, List, Dict, Optional, Hashable, Collection
+from .triadMotif import TriadMotif, MotifType
+
 
 class Hypergraph:
     """
@@ -78,39 +80,84 @@ class Hypergraph:
                      (self.hypernodes if from_hyper else self.nodes)]) for v in
                 (self.hypernodes if to_hyper else self.nodes)]
 
-    def reciprocity_motifs(self) -> List[Tuple]:
+    @staticmethod
+    def _sorted_ts(timestamps: List[Dict[str, int]]) -> List[Dict[str, int]]:
         """
-        :return: List of tuples of form (C1, c1, c2, C1->c2, c2->c1) as in paper
+        helper method for getting sorted timestamps of edges between hypernodes, e.g. from Hypergraph.adj_out[C1][C2]
+        :param timestamps: e.g. [{'timestamp': 1322706222, 'text': "Lolapalooza"}, {'timestamp': 1322665765, 'text': "Wanda"}]
+        :return: edge dictionaries sorted by timestamp
         """
-        motifs = []
-        for C1, c1_nodes in self.hypernodes.items():
-            for c1 in c1_nodes:
-                motifs += [(C1, c1, c2, e1, e2) for c2 in self.adj_in[c1] if
-                           c2 in self.nodes and c2 in self.adj_out[C1]
-                           for e1 in self.adj_out[C1][c2]
-                           for e2 in self.adj_out[c2][c1]]
+        return sorted(timestamps, key=lambda x: x['timestamp'])
+
+    def extract_motifs(self) -> Dict[str, List]:
+
+        motifs = dict()
+
+        for motif_type, motif_func in [
+            (MotifType.NO_EDGE_TRIADS.name, self.no_edge_triad_motifs),
+            (MotifType.SINGLE_EDGE_TRIADS.name, self.single_edge_triad_motifs),
+            (MotifType.INCOMING_TRIADS.name, self.incoming_triad_motifs),
+            (MotifType.OUTGOING_TRIADS.name, self.outgoing_triad_motifs),
+            (MotifType.DYADIC_TRIADS.name, self.dyadic_triad_motifs),
+            (MotifType.UNIDIRECTIONAL_TRIADS.name, self.unidirectional_triad_motifs),
+            (MotifType.INCOMING_2TO3_TRIADS.name, self.incoming_2to3_triad_motifs),
+            (MotifType.INCOMING_1TO3_TRIADS.name, self.incoming_1to3_triad_motifs),
+            (MotifType.DIRECTED_CYCLE_TRIADS.name, self.directed_cycle_triad_motifs),
+            (MotifType.OUTGOING_3TO1_TRIADS.name, self.outgoing_3to1_triad_motifs),
+            (MotifType.INCOMING_RECIPROCAL_TRIADS.name, self.incoming_reciprocal_triad_motifs),
+            (MotifType.OUTGOING_RECIPROCAL_TRIADS.name, self.outgoing_reciprocal_motifs),
+            (MotifType.DIRECTED_CYCLE_1TO3_TRIADS.name, self.directed_cycle_1to3_triad_motifs),
+            (MotifType.DIRECIPROCAL_TRIADS.name, self.direciprocal_triad_motifs),
+            (MotifType.DIRECIPROCAL_2TO3_TRIADS.name, self.direciprocal_2to3_triad_motifs),
+            (MotifType.TRIRECIPROCAL_TRIADS.name, self.trireciprocal_triad_motifs)
+        ]:
+            motifs[motif_type] = motif_func()
+
         return motifs
 
-    def external_reciprocity_motifs(self) -> List[Tuple]:
-        """
-        :return: List of tuples of form (C3, c2, c1, C3->c2, c2->c1) as in paper
-        """
+    # returns list of tuples of form (C1, C2, C3), no edges
+    def no_edge_triad_motifs(self):
         motifs = []
-        for C3 in self.hypernodes:
-            for c2 in self.adj_out[C3]:
-                if c2 in self.nodes:
-                    motifs += [(C3, c2, c1, e1, e2) for c1 in
-                               set(self.adj_out[c2].keys()) - self.hypernodes[C3]
-                               if c1 in self.nodes
-                               for e1 in self.adj_out[C3][c2]
-                               for e2 in self.adj_out[c2][c1]]
+        for C1, C2, C3 in itertools.combinations(self.hypernodes, 3):
+            if C1 not in self.adj_in[C2] and C1 not in self.adj_in[C3]:
+                if C2 not in self.adj_in[C3] and C2 not in self.adj_in[C1]:
+                    if C3 not in self.adj_in[C1] and C3 not in self.adj_in[C2]:
+                        motifs += [TriadMotif((C1, C2, C3), (), MotifType.NO_EDGE_TRIADS.name)]
         return motifs
 
-    def dyadic_interaction_motifs(self) -> List[Tuple]:
-        """
-        :return: List of tuples of form (C1, C2, C1->C2, C2->C1) as in paper
-        """
+    # returns list of tuples of form (C1, C2, C3, C1->C2)
+    def single_edge_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            outgoing = set(self.outgoing_hypernodes(C1))
+            incoming = set(self.incoming_hypernodes(C1))
+            non_adjacent = set(self.hypernodes) - outgoing.union(incoming)
+            outgoing_only = outgoing - incoming
 
+            motifs += [TriadMotif((C1, C2, C3), (Hypergraph._sorted_ts(self.adj_out[C1][C2]),), MotifType.SINGLE_EDGE_TRIADS.name)
+                       for C2 in outgoing_only
+                       for C3 in non_adjacent if ((C3 not in self.adj_out[C2]) and (C3 not in self.adj_in[C2]))]
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C1)
+    def dyadic_triad_motifs(self):
+        motifs = []
+        for C3 in self.hypernodes: # define the triad with respect to C3 <- prevents double counting
+            outgoing = set(self.outgoing_hypernodes(C3))
+            incoming = set(self.incoming_hypernodes(C3))
+            non_adjacent = set(self.hypernodes) - outgoing.union(incoming)
+
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                   Hypergraph._sorted_ts(self.adj_out[C2][C1])),
+                                  MotifType.DYADIC_TRIADS.name)
+                       for C1, C2 in itertools.combinations(non_adjacent, 2)
+                       if ((C2 in self.adj_out[C1]) and (C1 in self.adj_out[C2]))]
+        return motifs
+
+
+    # returns list of tuples of form (C1, C2, C1->C2, C2->C1) as in paper
+    def dyadic_interaction_motifs(self):
         motifs = []
         for C1 in self.hypernodes:
             motifs += [(C1, C2, e1, e2) for C2 in self.adj_out[C1] if C2 in
@@ -119,28 +166,256 @@ class Hypergraph:
                        for e2 in self.adj_out[C2][C1]]
         return motifs
 
-    def incoming_triad_motifs(self) -> List[Tuple]:
-        """
-        :return: List of tuples of form (C1, C2, C3, C2->C1, C3->C1) as in paper
-        """
+    # returns list of tuples of form (C1, C2, C3, C2->C1, C3->C1)
+    def incoming_triad_motifs(self):
         motifs = []
         for C1 in self.hypernodes:
-            incoming = list(self.adj_in[C1].keys())
-            motifs += [(C1, C2, C3, e1, e2) for C2, C3 in
-                       itertools.combinations(incoming, 2)
-                       for e1 in self.adj_out[C2][C1]
-                       for e2 in self.adj_out[C3][C1]]
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            incoming_only = incoming - outgoing
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C2][C1]), Hypergraph._sorted_ts(self.adj_out[C3][C1])),
+                                  MotifType.INCOMING_TRIADS.name)
+                       for C2, C3 in itertools.combinations(incoming_only, 2)]
         return motifs
 
-    def outgoing_triad_motifs(self) -> List[Tuple]:
-        """
-        :return: List of tuples of form (C1, C2, C3, C1->C2, C1->C3) as in paper
-        """
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C1->C3)
+    def outgoing_triad_motifs(self):
         motifs = []
         for C1 in self.hypernodes:
-            outgoing = list(self.adj_out[C1].keys())
-            motifs += [(C1, C2, C3, e1, e2) for C2, C3 in
-                       itertools.combinations(outgoing, 2)
-                       for e1 in self.adj_out[C1][C2]
-                       for e2 in self.adj_out[C1][C3]]
+            outgoing = set(self.outgoing_hypernodes(C1))
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing_only = outgoing - incoming
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                   Hypergraph._sorted_ts(self.adj_out[C1][C3])),
+                                  MotifType.OUTGOING_TRIADS.name)
+                       for C2, C3 in itertools.combinations(outgoing_only, 2)]
         return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C3)
+    def unidirectional_triad_motifs(self):
+        motifs = []
+        for C2 in self.hypernodes: # define the motif with respect to C2
+            incoming = set(self.incoming_hypernodes(C2))
+            outgoing = set(self.outgoing_hypernodes(C2))
+            incoming_only = incoming - outgoing # ignore edges C2->C1
+            outgoing_only = outgoing - incoming # ignore edges C3->C2
+            for C1 in incoming_only:
+                for C3 in outgoing_only:
+                    # ensure C3 and C1 have no edges between them
+                    if C1 in self.adj_out[C3]: continue
+                    if C3 in self.adj_out[C1]: continue
+                    motifs += [TriadMotif((C1, C2, C3),
+                                          (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                           Hypergraph._sorted_ts(self.adj_out[C2][C3])),
+                                          MotifType.UNIDIRECTIONAL_TRIADS.name)]
+
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C2->C1, C3->C1, C2->C3)
+    def incoming_2to3_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            incoming_only = incoming - outgoing # no edges C2->C1
+            for C2, C3 in itertools.permutations(incoming_only, 2): # permutations because non-symmetric
+                if C2 in self.adj_out[C3]: continue # ensure no C3->C2
+                if C3 not in self.adj_out[C2]: continue # ensure C2->C3 exists
+                motifs += [TriadMotif((C1, C2, C3),
+                                      (Hypergraph._sorted_ts(self.adj_out[C2][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C3][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C2][C3])),
+                                      MotifType.INCOMING_2TO3_TRIADS.name)
+                           ]
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C3, C3->C1)
+    def directed_cycle_triad_motifs(self):
+        # not efficient
+        motifs = []
+        for C1, C2, C3 in itertools.combinations(self.hypernodes, 3):
+            if C3 in self.adj_out[C1]: continue
+            if C1 in self.adj_out[C2]: continue
+            if C2 in self.adj_out[C3]: continue
+
+            if C2 not in self.adj_out[C1]: continue
+            if C3 not in self.adj_out[C2]: continue
+            if C1 not in self.adj_out[C3]: continue
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                   Hypergraph._sorted_ts(self.adj_out[C2][C3]),
+                                   Hypergraph._sorted_ts(self.adj_out[C3][C1])),
+                                  MotifType.DIRECTED_CYCLE_TRIADS.name)]
+
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C2->C1, C3->C1, C1->C3)
+    def incoming_1to3_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            incoming_only = incoming - outgoing # no edges C2->C1
+            for C2, C3 in itertools.permutations(incoming_only, 2):
+                if C2 in self.adj_out[C1]: continue
+                if C2 in self.adj_out[C3]: continue
+                if C3 in self.adj_out[C2]: continue
+
+                if C3 not in self.adj_out[C1]: continue
+
+                motifs += [TriadMotif((C1, C2, C3),
+                                      (Hypergraph._sorted_ts(self.adj_out[C2][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C3][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C1][C3])),
+                                      MotifType.INCOMING_1TO3_TRIADS.name)
+                           ]
+
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C1->C3, C3->C1)
+    def outgoing_3to1_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            outgoing = self.outgoing_hypernodes(C1)
+            for C2, C3 in itertools.permutations(outgoing, 2):
+                if C1 in self.adj_out[C2]: continue
+                if C2 in self.adj_out[C3]: continue
+                if C3 in self.adj_out[C2]: continue
+
+                if C1 not in self.adj_out[C3]: continue
+                motifs += [TriadMotif((C1, C2, C3),
+                                      (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                       Hypergraph._sorted_ts(self.adj_out[C1][C3]),
+                                       Hypergraph._sorted_ts(self.adj_out[C3][C1])),
+                                      MotifType.OUTGOING_3TO1_TRIADS.name)
+                           ]
+
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C2->C1, C3->C1, C2->C3, C3->C2)
+    def incoming_reciprocal_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            incoming_only = incoming - outgoing
+
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C2][C1]),
+                                   Hypergraph._sorted_ts(self.adj_out[C3][C1]),
+                                   Hypergraph._sorted_ts(self.adj_out[C2][C3]),
+                                   Hypergraph._sorted_ts(self.adj_out[C3][C2])),
+                                  MotifType.INCOMING_RECIPROCAL_TRIADS.name)
+                       for C2, C3 in itertools.combinations(incoming_only, 2)
+                       if ((C3 in self.adj_out[C2]) and (C2 in self.adj_out[C3]))
+                       ]
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C1->C3, C2->C3, C3->C2)
+    def outgoing_reciprocal_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            outgoing_only = outgoing - incoming
+
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                   Hypergraph._sorted_ts(self.adj_out[C1][C3]),
+                                   Hypergraph._sorted_ts(self.adj_out[C2][C3]),
+                                   Hypergraph._sorted_ts(self.adj_out[C3][C2])),
+                                  MotifType.OUTGOING_RECIPROCAL_TRIADS.name)
+                       for C2, C3 in itertools.combinations(outgoing_only, 2)
+                       if ((C3 in self.adj_out[C2]) and (C2 in self.adj_out[C3]))
+                       ]
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C3, C3->C1, C1->C3)
+    def directed_cycle_1to3_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            outgoing = set(self.outgoing_hypernodes(C1))
+            for C2, C3 in itertools.permutations(outgoing, 2):
+                if C1 in self.adj_out[C2]: continue
+                if C2 in self.adj_out[C3]: continue
+
+                if C3 not in self.adj_out[C2]: continue
+                if C1 not in self.adj_out[C3]: continue
+
+                motifs += [TriadMotif((C1, C2, C3),
+                                      (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                       Hypergraph._sorted_ts(self.adj_out[C2][C3]),
+                                       Hypergraph._sorted_ts(self.adj_out[C3][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C1][C3])),
+                                      MotifType.DIRECTED_CYCLE_1TO3_TRIADS.name)
+                           ]
+        # for m in motifs:
+        #     print(m)
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C1, C1->C3, C3->C1)
+    def direciprocal_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            in_and_out = incoming.intersection(outgoing)
+            for C2, C3 in itertools.combinations(in_and_out, 2):
+                if C3 in self.adj_out[C2]: continue
+                if C2 in self.adj_out[C3]: continue
+
+                motifs += [TriadMotif((C1, C2, C3),
+                                      (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                       Hypergraph._sorted_ts(self.adj_out[C2][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C1][C3]),
+                                       Hypergraph._sorted_ts(self.adj_out[C3][C1])),
+                                      MotifType.DIRECIPROCAL_TRIADS.name)
+                           ]
+        return motifs
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C1, C1->C3, C3->C1, C2->C3)
+    def direciprocal_2to3_triad_motifs(self):
+        motifs = []
+        for C1 in self.hypernodes:
+            incoming = set(self.incoming_hypernodes(C1))
+            outgoing = set(self.outgoing_hypernodes(C1))
+            in_and_out = incoming.intersection(outgoing)
+            for C2, C3 in itertools.permutations(in_and_out, 2):
+                if C2 in self.adj_out[C3]: continue
+                if C3 not in self.adj_out[C2]: continue
+
+                motifs += [TriadMotif((C1, C2, C3),
+                                      (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                       Hypergraph._sorted_ts(self.adj_out[C2][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C1][C3]),
+                                       Hypergraph._sorted_ts(self.adj_out[C3][C1]),
+                                       Hypergraph._sorted_ts(self.adj_out[C2][C3])),
+                                      MotifType.DIRECIPROCAL_2TO3_TRIADS.name)
+                           ]
+        return motifs
+
+
+    # returns list of tuples of form (C1, C2, C3, C1->C2, C2->C1, C2->C3, C3->C2, C3->C1, C1->C3)
+    def trireciprocal_triad_motifs(self):
+        # prevents triple-counting
+        motifs = []
+        for C1, C2, C3 in itertools.combinations(self.hypernodes, 3):
+            if C2 not in self.adj_out[C1]: continue
+            if C1 not in self.adj_out[C2]: continue
+            if C3 not in self.adj_out[C2]: continue
+            if C2 not in self.adj_out[C3]: continue
+            if C1 not in self.adj_out[C3]: continue
+            if C3 not in self.adj_out[C1]: continue
+
+            motifs += [TriadMotif((C1, C2, C3),
+                                  (Hypergraph._sorted_ts(self.adj_out[C1][C2]),
+                                   Hypergraph._sorted_ts(self.adj_out[C2][C1]),
+                                   Hypergraph._sorted_ts(self.adj_out[C2][C3]),
+                                   Hypergraph._sorted_ts(self.adj_out[C3][C2]),
+                                   Hypergraph._sorted_ts(self.adj_out[C3][C1]),
+                                   Hypergraph._sorted_ts(self.adj_out[C1][C3])),
+                                  MotifType.TRIRECIPROCAL_TRIADS.name)
+                       ]
+
