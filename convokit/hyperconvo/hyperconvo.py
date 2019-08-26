@@ -314,23 +314,6 @@ class HyperConvo(Transformer):
 
 
     @staticmethod
-    def retrieve_texts(corpus: Corpus, prefix_len=10, min_thread_len=10, include_root: bool = False):
-        threads_motifs = {}
-        for i, (root, thread) in enumerate(
-                corpus.utterance_threads(prefix_len=prefix_len, include_root=include_root).items()):
-            if len(thread) < min_thread_len: continue
-
-            G = HyperConvo._make_hypergraph(uts=thread)
-            motifs = G.extract_motifs()
-
-            motifs_texts = dict()
-            for motif_type in motifs:
-                motifs_texts[motif_type] = [motif.get_text() for motif in motifs[motif_type]]
-
-            threads_motifs[root] = motifs_texts
-        return threads_motifs
-
-    @staticmethod
     def retrieve_motifs(corpus: Corpus, prefix_len: int = 10, min_thread_len: int = 10, include_root: bool = False):
         threads_motifs = {}
         for i, (root, thread) in enumerate(
@@ -340,6 +323,30 @@ class HyperConvo(Transformer):
             motifs = G.extract_motifs()
             threads_motifs[root] = motifs
 
+        return threads_motifs
+
+
+    @staticmethod
+    def retrieve_motif_counts(corpus: Corpus, prefix_len: int = 10, min_thread_len: int = 10, include_root: bool = False):
+        threads_motifs = HyperConvo.retrieve_motifs(corpus=corpus,
+                                                    prefix_len=prefix_len,
+                                                    min_thread_len=min_thread_len,
+                                                    include_root=include_root)
+        for thread_id, motif_dict in threads_motifs.items():
+            for motif_type, instances in motif_dict.items():
+                motif_dict[motif_type] = len(instances)
+        return threads_motifs
+
+    @staticmethod
+    def retrieve_motif_texts(corpus: Corpus, prefix_len: int = 10, min_thread_len: int = 10, include_root: bool = False):
+        threads_motifs = HyperConvo.retrieve_motifs(corpus=corpus,
+                                                    prefix_len=prefix_len,
+                                                    min_thread_len=min_thread_len,
+                                                    include_root=include_root)
+
+        for thread_id, motif_dict in threads_motifs.items():
+            for motif_type, instances in motif_dict.items():
+                motif_dict[motif_type] = [motif.get_text() for motif in instances]
         return threads_motifs
 
 
