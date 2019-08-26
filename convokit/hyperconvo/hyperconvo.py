@@ -90,9 +90,9 @@ class HyperConvo(Transformer):
         return corpus
 
     @staticmethod
-    def _make_hypergraph(corpus: Optional[Corpus]=None,
-                         uts: Optional[Dict[Hashable, Utterance]]=None,
-                         exclude_id: Hashable=None) -> Hypergraph:
+    def _make_hypergraph(corpus: Optional[Corpus] = None,
+                         uts: Optional[Dict[Hashable, Utterance]] = None,
+                         exclude_id: Hashable = None) -> Hypergraph:
         """
         Construct a Hypergraph from all the utterances of a Corpus, or a specified subset of utterances
 
@@ -329,10 +329,10 @@ class HyperConvo(Transformer):
         return threads_motifs
 
     @staticmethod
-    def retrieve_motifs(corpus: Corpus, prefix_len=10, min_thread_len=10):
+    def retrieve_motifs(corpus: Corpus, prefix_len: int = 10, min_thread_len: int = 10, include_root: bool = False):
         threads_motifs = {}
         for i, (root, thread) in enumerate(
-                corpus.utterance_threads(prefix_len=prefix_len).items()):
+                corpus.utterance_threads(prefix_len=prefix_len, include_root=include_root).items()):
             if len(thread) < min_thread_len: continue
             G = HyperConvo._make_hypergraph(uts=thread)
             motifs = G.extract_motifs()
@@ -341,7 +341,7 @@ class HyperConvo(Transformer):
         return threads_motifs
 
     @staticmethod
-    def get_threads_motifs(corpus: Corpus, prefix_len=10, min_thread_len=10):
+    def get_threads_motifs(corpus: Corpus, prefix_len: int = 10, min_thread_len: int = 10):
         threads_motifs = {}
 
         for i, (root, thread) in enumerate(
