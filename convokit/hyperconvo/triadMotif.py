@@ -1,5 +1,6 @@
 from enum import Enum, auto
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Optional
+from graphviz import Digraph
 
 
 class MotifType(Enum):
@@ -453,3 +454,21 @@ class TriadMotif:
                 retval[(parent, c)] = 0
 
         return retval
+
+    def visualize(self, text_limit: Optional[int] = 20, verbose: bool = False) -> None:
+        """
+        Uses Graphviz to construct a visualisation of the motif, with edges labelled with the utterance text
+        :param text_limit:
+        :param verbose:
+        :return:
+        """
+        g = Digraph('G')
+        g.attr(rankdir='LR')
+        edges = sorted([e[0] for e in self.edges], key=lambda x: x['timestamp'])
+        for idx, edge in enumerate(edges):
+            if verbose:
+                label = "{}. {}".format(idx + 1, edge['text']) if text_limit is None else "{}. {}".format(idx + 1, edge['text'][:text_limit])
+            else:
+                label = str(idx+1)
+            g.edge(str(edge['speaker']), str(edge['target']), label=label)
+        g.view()
