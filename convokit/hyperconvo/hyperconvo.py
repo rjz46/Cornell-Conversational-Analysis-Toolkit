@@ -67,11 +67,11 @@ class HyperConvo(Transformer):
                                           prefix_len=self.prefix_len,
                                           min_thread_len=self.min_thread_len,
                                           include_root=self.include_root)
-        if self.include_root: # threads start at root (post)
+        if self.include_root:  # threads start at root (post)
             for root_id in feats.keys():
                 convo = corpus.get_conversation(root_id)
                 convo.add_meta("hyperconvo", {root_id: feats[root_id]})
-        else: # threads start at top-level-comment
+        else:  # threads start at top-level-comment
             # Construct top-level-comment to root mapping
             threads = corpus.utterance_threads(prefix_len=self.prefix_len, include_root=False)
 
@@ -137,13 +137,14 @@ class HyperConvo(Transformer):
             for reply_to in reply_tos:
                 G.add_edge(u, reply_to)
         # user to user response edges
-        for u, v, timestamp, text, reply_to, top_level_comment in speaker_target_pairs:
+        for u, v, timestamp, text, reply_to, utt_id, top_level_comment in speaker_target_pairs:
             G.add_edge(u, v, {'timestamp': timestamp,
                               'text': text,
                               'speaker': u,
                               'target': v,
                               'reply_to': reply_to,
                               'top_level_comment': top_level_comment,
+                              'utt_id': utt_id,
                               'root': (reply_to == top_level_comment)
                               })
         return G
@@ -248,7 +249,8 @@ class HyperConvo(Transformer):
                 curr_motif = motif_instance
                 child_motif_type = curr_motif.get_type()
                 # Reflexive edge
-                transitions[(child_motif_type, child_motif_type)] += 1
+                if trans:
+                    transitions[(child_motif_type, child_motif_type)] += 1
 
                 # print(transitions)
                 while True:
@@ -256,21 +258,22 @@ class HyperConvo(Transformer):
                     curr_motif = curr_motif.regress()
                     if curr_motif is None: break
                     parent_motif_type = curr_motif.get_type()
-                    transitions[(parent_motif_type, child_motif_type)] += 1
+                    if trans:
+                        transitions[(parent_motif_type, child_motif_type)] += 1
                     child_motif_type = parent_motif_type
 
         return latent_motif_count, transitions
 
     @staticmethod
-    def _motif_feats(uts: Optional[Dict[Hashable, Utterance]]=None,
-                     G: Hypergraph=None,
+    def _motif_feats(uts: Optional[Dict[Hashable, Utterance]] = None,
+                     G: Hypergraph = None,
                      name_ext: str="",
-                     exclude_id: str=None,
+                     exclude_id: str = None,
                      latent=True,
                      trans=True) -> Dict:
         """
         Helper method for retrieve_feats().
-        Generate statistics on degree-related features in a Hypergraph (G), or a Hypergraph
+        Generate statistics on motif-related features in a Hypergraph (G), or a Hypergraph
         constructed from provided utterances (uts)
         :param uts: utterances to construct Hypergraph from
         :param G: Hypergraph to calculate degree features statistics from
@@ -285,7 +288,6 @@ class HyperConvo(Transformer):
         motifs = G.extract_motifs()
 
         stat_funcs = {
-            # "is-present": lambda l: len(l) > 0,
             "count": len
         }
 
@@ -312,10 +314,10 @@ class HyperConvo(Transformer):
 
 
     @staticmethod
-    def retrieve_texts(corpus: Corpus, prefix_len=10, min_thread_len=10):
+    def retrieve_texts(corpus: Corpus, prefix_len=10, min_thread_len=10, include_root: bool = False):
         threads_motifs = {}
         for i, (root, thread) in enumerate(
-                corpus.utterance_threads(prefix_len=prefix_len).items()):
+                corpus.utterance_threads(prefix_len=prefix_len, include_root=include_root).items()):
             if len(thread) < min_thread_len: continue
 
             G = HyperConvo._make_hypergraph(uts=thread)
@@ -338,18 +340,6 @@ class HyperConvo(Transformer):
             motifs = G.extract_motifs()
             threads_motifs[root] = motifs
 
-        return threads_motifs
-
-    @staticmethod
-    def get_threads_motifs(corpus: Corpus, prefix_len: int = 10, min_thread_len: int = 10):
-        threads_motifs = {}
-
-        for i, (root, thread) in enumerate(
-                corpus.utterance_threads(prefix_len=prefix_len).items()):
-            if len(thread) < min_thread_len: continue
-            G = HyperConvo._make_hypergraph(uts=thread)
-
-            threads_motifs[root] = G.extract_motifs()
         return threads_motifs
 
 
@@ -386,6 +376,3 @@ class HyperConvo(Transformer):
 
         return threads_stats
 
-
-
-        return motifs

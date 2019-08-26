@@ -419,3 +419,4 @@ class Hypergraph:
                                   MotifType.TRIRECIPROCAL_TRIADS.name)
                        ]
 
+        return motifs
