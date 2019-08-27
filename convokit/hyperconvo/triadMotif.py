@@ -23,7 +23,8 @@ class MotifType(Enum):
 
 
 class TriadMotif:
-    """Represents a *TRIAD* motif, consisting of hypernodes and directed edges
+    """
+    Represents a triadic motif, consisting of three hypernodes and directed edges between the hypernodes
     Contains functionality to temporally regress a motif to its antecedent stages
     """
     def __init__(self, hypernodes: Tuple, edges: Tuple[List[Dict[str, int]], ...], triad_type: str):
@@ -59,6 +60,7 @@ class TriadMotif:
         for e in self.edges:
             texts.append(e[0]["text"])
         return texts
+
 
     @staticmethod
     def edge_labels():
@@ -105,6 +107,13 @@ class TriadMotif:
             # (C1, C2, C3, C1->C2, C2->C1, C2->C3, C3->C2, C3->C1, C1->C3)}
             MotifType.TRIRECIPROCAL_TRIADS.name: ["C1->C2", "C2->C1", "C2->C3", "C3->C2", "C3->C1", "C1->C3"]
         }
+
+    @staticmethod
+    def get_motif_types() -> List[str]:
+        """
+        :return: List of names of Motifs
+        """
+        return list(TriadMotif.edge_labels())
 
     # delete last edge and reorder remaining edges + hypernodes to conform to antecedent motif edge ordering
     def delete_and_reorder(self, idx_to_delete: int) -> Tuple[Tuple, Tuple]:
@@ -472,3 +481,35 @@ class TriadMotif:
                 label = str(idx+1)
             g.edge(str(edge['speaker']), str(edge['target']), label=label)
         g.view()
+
+    def get_development_path(self) -> Tuple[str]:
+        """
+        :return: Returns a Tuple of the different stages of the motif's development
+        """
+        path = []
+        curr_motif_state = self
+        while curr_motif_state is not None:
+            path.append(curr_motif_state.triad_type)
+            curr_motif_state = curr_motif_state.regress()
+        return tuple(path[::-1])
+
+    def replay_motif(self) -> None:
+        """
+        Prints each utterance in order and the corresponding motif development
+        :return: None
+        """
+        pathway = self.get_development_path()
+        sorted_edges = sorted(self.edges, key=lambda e: e[0]['timestamp'])
+        for i in range(len(pathway)):
+            if i == 0: continue
+            print("########################")
+            print("{} -> {}".format(pathway[i-1], pathway[i]))
+            print()
+            edge = sorted_edges[i-1][0]
+            print("{} -> {}".format(edge['speaker'], edge['target']))
+            print()
+            print("TEXT: {}".format(edge['text']))
+            print()
+            if edge['root']:
+                print("(This utterance responds to a top-level-comment!)")
+                print()
