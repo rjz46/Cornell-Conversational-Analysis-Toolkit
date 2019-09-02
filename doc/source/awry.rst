@@ -1,10 +1,15 @@
 Conversations Gone Awry Dataset
 ===============================
 
-A collection of conversations from Wikipedia talk pages that derail into personal attacks (1,270 conversations, 6,963 comments). 
+A collection of conversations from Wikipedia talk pages that derail into personal attacks (4,188 conversations, 30,021 comments). 
 
-Distributed together with: `Conversations gone awry: Detecting early signs of conversational failure <https://www.cs.cornell.edu/~cristian/Conversations_gone_awry_files/conversations_gone_awry.pdf>`_. Justine Zhang, Jonathan P. Chang, Cristian Danescu-Niculescu-Mizil, Lucas Dixon, Yiqing Hua, Nithum Thain, Dario Taraborelli. ACL 2018. 
+Distributed together with: 
 
+`Conversations gone awry: Detecting early signs of conversational failure <https://www.cs.cornell.edu/~cristian/Conversations_gone_awry_files/conversations_gone_awry.pdf>`_. Justine Zhang, Jonathan P. Chang, Cristian Danescu-Niculescu-Mizil, Lucas Dixon, Yiqing Hua, Nithum Thain, Dario Taraborelli. ACL 2018. 
+
+and
+
+Trouble on the Horizon: Forecasting the Derailment of Online Conversations as they Develop. Jonathan P. Chang and Crisitan Danescu-Niculescu-Mizil. EMNLP 2019.
 
 Dataset details
 ---------------
@@ -44,6 +49,8 @@ Metadata for each conversation include:
 * conversation_has_personal_attack: whether any comment in this comment's conversation contains a personal attack according to crowdsourced annotators
 * verified: whether the personal attack label has been double-checked by an internal annotator and confirmed to be correct 
 * pair_verified: whether the personal attack label for the paired conversation has been double-checked by an internal annotator and confirmed to be correct 
+* annotation_year: which round of annotation the conversation's label came from. Possible values are "2018" for the first annotation round and "2019" for the second annotation round.
+* split: which split (train, val, or test) this conversation was used in for the experiments described in "Trouble on the Horizon" (not applicable to results from "Conversations Gone Awry", which reports leave-one-out accuracies).
 
 
 Usage
@@ -58,17 +65,17 @@ To download directly with ConvoKit:
 For some quick stats:
 
 >>> len(corpus.get_utterance_ids()) 
-6960
+30021
 >>> len(corpus.get_usernames())
-2146
+8069
 >>> len(corpus.get_conversation_ids())
-1270
+4188
 
 
 Additional note
 ---------------
 
-This data was collected from late 2017 to early 2018 and was annotated in April 2018.
+This data was collected from late 2017 to early 2018 and was annotated in two rounds: one round in April 2018 (for "Conversations Gone Awry") and another in February 2019 (for "Trouble on the Horizon").
 
 
 Related links

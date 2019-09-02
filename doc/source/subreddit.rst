@@ -95,10 +95,12 @@ Number of Users: 7568
 Number of Utterances: 74467
 Number of Conversations: 10744
 >>> a2c_corpus = Corpus(filename=download("subreddit-ApplyingToCollege"))
+>>> a2c_corpus.print_summary_stats()
 Number of Users: 53067
 Number of Utterances: 1148299
 Number of Conversations: 121007
 >>> merged_corpus = cornell_corpus.merge(a2c_corpus, warnings=False)
+>>> merged_corpus.print_summary_stats()
 Number of Users: 59739
 Number of Utterances: 1222766
 Number of Conversations: 131751

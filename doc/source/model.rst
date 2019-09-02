@@ -1,14 +1,12 @@
 Model
 ============
 
-.. automodule:: convokit.model.corpus
-    :members:
+These are the classes that comprise a ConvoKit corpus:
 
-.. automodule:: convokit.model.conversation
-    :members:
+.. toctree::
+   :maxdepth: 2
 
-.. automodule:: convokit.model.utterance
-    :members:
-
-.. automodule:: convokit.model.user
-    :members:
+   User <user.rst>
+   Utterance <utterance.rst>
+   Conversation <conversation.rst>
+   Corpus <corpus.rst>

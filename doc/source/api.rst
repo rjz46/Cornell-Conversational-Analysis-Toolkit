@@ -9,7 +9,10 @@ These are the classes described in :doc:`Core Concepts Tutorial </architecture>`
 .. toctree::
    :maxdepth: 2
 
-   Model <model.rst>
+   User <user.rst>
+   Utterance <utterance.rst>
+   Conversation <conversation.rst>
+   Corpus <corpus.rst>
    Transformer <transformer.rst>
 
 Utilities
