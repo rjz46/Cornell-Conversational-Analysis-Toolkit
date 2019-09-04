@@ -3,6 +3,7 @@ from .util import *
 from .coordination import *
 from .questionTypology import *
 from .politenessStrategies import *
+from .requestChecker import *
 from .transformer import *
 from .parser import *
 from .hyperconvo import *
