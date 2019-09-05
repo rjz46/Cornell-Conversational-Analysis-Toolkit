@@ -79,6 +79,7 @@ class RequestChecker(Transformer):
             utt_ids.append(utterance.id)
             doc = {"text": utterance.text, "sentences": [], "parses": []}
             # the politeness API goes sentence-by-sentence
+            
             for sent in utterance.meta["parsed"].sents:
                 doc["sentences"].append(sent.text)
                 sent_parses = []
@@ -88,7 +89,9 @@ class RequestChecker(Transformer):
                         ele = "%s(%s-%d, %s-%d)"%(tok.dep_, tok.head.text, tok.head.i + 1 - pos, tok.text, tok.i + 1 - pos)
                         sent_parses.append(ele)
                 doc["parses"].append(sent_parses)
-                documents.append(doc)
+            
+            documents.append(doc)
+        
         if self.verbose:
             print("Done!")
         return utt_ids, documents
