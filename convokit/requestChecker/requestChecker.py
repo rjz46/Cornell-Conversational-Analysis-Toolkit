@@ -36,6 +36,9 @@ class RequestChecker(Transformer):
         if self.verbose: print("Request checking...")
         labels = [self._check_is_request(doc) for doc in tqdm(processed_comments)]
 
+        # ensure no text is missed
+        assert(len(labels) == len(comment_ids))
+
         # add the extracted strategies to the utterance metadata
         for utt_id, label in zip(comment_ids, labels):
             corpus.get_utterance(utt_id).meta[self.ATTR_NAME] = label
