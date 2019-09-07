@@ -36,6 +36,9 @@ class RequestChecker(Transformer):
         if self.verbose: print("Request checking...")
         labels = [self._check_is_request(doc) for doc in tqdm(processed_comments)]
 
+        # ensure no text is missed
+        assert(len(labels) == len(comment_ids))
+
         # add the extracted strategies to the utterance metadata
         for utt_id, label in zip(comment_ids, labels):
             corpus.get_utterance(utt_id).meta[self.ATTR_NAME] = label
@@ -79,6 +82,7 @@ class RequestChecker(Transformer):
             utt_ids.append(utterance.id)
             doc = {"text": utterance.text, "sentences": [], "parses": []}
             # the politeness API goes sentence-by-sentence
+            
             for sent in utterance.meta["parsed"].sents:
                 doc["sentences"].append(sent.text)
                 sent_parses = []
@@ -88,7 +92,9 @@ class RequestChecker(Transformer):
                         ele = "%s(%s-%d, %s-%d)"%(tok.dep_, tok.head.text, tok.head.i + 1 - pos, tok.text, tok.i + 1 - pos)
                         sent_parses.append(ele)
                 doc["parses"].append(sent_parses)
-                documents.append(doc)
+            
+            documents.append(doc)
+        
         if self.verbose:
             print("Done!")
         return utt_ids, documents
