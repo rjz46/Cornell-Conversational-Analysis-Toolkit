@@ -1519,8 +1519,6 @@ exclusion
 excoriate
 excruciating
 excruciatingly
-excuse
-excuses
 execrate
 exhaust
 exhausted
@@ -3950,7 +3948,6 @@ soreness
 sorrow
 sorrowful
 sorrowfully
-sorry
 sour
 sourly
 spade

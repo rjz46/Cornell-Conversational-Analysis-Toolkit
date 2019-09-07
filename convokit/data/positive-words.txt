@@ -112,11 +112,6 @@ appeal
 appealing
 applaud
 appreciable
-appreciate
-appreciated
-appreciates
-appreciative
-appreciatively
 appropriate
 approval
 approve
@@ -1789,8 +1784,6 @@ tender
 tenderly
 terrific
 terrifically
-thank
-thankful
 thinner
 thoughtful
 thoughtfully
