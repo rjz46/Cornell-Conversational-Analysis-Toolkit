@@ -43,7 +43,7 @@ def download(name: str, verbose: bool=True, data_dir: str=None, use_newest_versi
         "parliament-corpus": 2,
         "wikiconv-corpus": 1,
         "tennis-corpus": 2,
-        "reddit-corpus": 3,
+        "reddit-corpus": 0,
         "reddit-corpus-small": 2,
         "conversations-gone-awry-corpus": 3,
         "conversations-gone-awry-cmv-corpus": 1,
