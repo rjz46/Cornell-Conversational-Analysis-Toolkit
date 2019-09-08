@@ -323,7 +323,7 @@ class HyperConvo(Transformer):
         return threads_motifs
 
     def retrieve_motif_pathway_stats(self, corpus: Corpus):
-        threads_motifs = self.retrieve_motifs(Corpus)
+        threads_motifs = self.retrieve_motifs(corpus)
         paths_list = TriadMotif.paths_list()
         paths_dict = {k: 0 for k in paths_list}
 
