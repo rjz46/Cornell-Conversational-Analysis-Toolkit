@@ -7,7 +7,7 @@ class User:
 
     :param name: name of the user.
     :type name: str
-    :param utts: dictionary of utterances by the user, where key is user id
+    :param utts: dictionary of utterances by the user, where key is utterance id
     :param convos: dictionary of conversations started by the user, where key is conversation id
     :param meta: arbitrary dictionary of attributes associated
         with the user.
@@ -50,22 +50,50 @@ class User:
     name = property(_get_name, _set_name)
 
     def get_utterance_ids(self) -> List[Hashable]:
+        """
+
+        :return: a List of the ids of Utterances made by the User
+        """
         return list(self.utterances.keys())
 
     def get_utterance(self, ut_id: Hashable): #-> Utterance:
+        """
+        Get the Utterance with the specified Utterance id
+
+        :param ut_id: The id of the Utterance
+        :return: An Utterance object
+        """
         return self.utterances[ut_id]
 
     def iter_utterances(self): #-> Generator[Utterance, None, None]:
+        """
+
+        :return: An iterator of the Utterances made by the User
+        """
         for v in self.utterances.values():
             yield v
 
     def get_conversation_ids(self) -> List[str]:
+        """
+
+        :return: a List of the ids of Conversations started by the User
+        """
         return list(self.conversations.keys())
 
     def get_conversation(self, cid: Hashable): # -> Conversation:
+        """
+        Get the Conversation with the specified Conversation id
+
+        :param cid: The id of the Conversation
+        :return: A Conversation object
+        """
         return self.conversations[cid]
 
     def iter_conversations(self): # -> Generator[Conversation, None, None]:
+        """
+
+        :return: An iterator of the Conversations started by the User
+        """
         for v in self.conversations.values():
             yield v
 
@@ -77,6 +105,11 @@ class User:
     meta = property(_get_meta, _set_meta)
 
     def add_meta(self, key: Hashable, value) -> None:
+        """
+        Adds a key-value pair to the metadata of the User
+
+        :return: None
+        """
         self.meta[key] = value
 
     def _update_uid(self):

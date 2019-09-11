@@ -1,5 +1,5 @@
 # Cornell Conversational Analysis Toolkit ([ConvoKit](http://convokit.cornell.edu/))
-This toolkit contains tools to extract conversational features and analyze social phenomena in conversations, using a [single unified interface](https://zissou.infosci.cornell.edu/convokit/documentation/architecture.html) inspired by (and compatible with) scikit-learn.  Several large [conversational datasets](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit#datasets) are included together with scripts exemplifying the use of the toolkit on these datasets. The latest version is [2.0.10](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/releases/tag/v2.0) (released 21 Aug 2019).
+This toolkit contains tools to extract conversational features and analyze social phenomena in conversations, using a [single unified interface](https://zissou.infosci.cornell.edu/convokit/documentation/architecture.html) inspired by (and compatible with) scikit-learn.  Several large [conversational datasets](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit#datasets) are included together with scripts exemplifying the use of the toolkit on these datasets. The latest version is [2.0.11](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/releases/tag/v2.0) (released 08 Sep 2019).
 
 The toolkit currently implements features for:
 
@@ -25,14 +25,17 @@ Example: [hypergraph creation and feature extraction, visualization and interpre
 ### [Linguistic diversity in conversations (Coming Soon!)](http://www.cs.cornell.edu/~cristian/Finding_your_voice__linguistic_development.html)
 A method to compute the linguistic diversity of individuals within their own conversations, and between other individuals in a population.  
 
+### [CRAFT: Online forecasting of conversational outcomes (Coming Soon!)](https://arxiv.org/abs/1909.01362)
+A neural model for forecasting future outcomes of conversations (e.g., derailment into personal attacks) as they develop.
+
 ## Datasets
 ConvoKit ships with several datasets ready for use "out-of-the-box".
 These datasets can be downloaded using the `convokit.download()` [helper function](https://github.com/CornellNLP/Cornell-Conversational-Analysis-Toolkit/blob/master/convokit/util.py).  Alternatively you can access them directly [here](http://zissou.infosci.cornell.edu/convokit/datasets/).
 
 ### [Conversations Gone Awry Dataset](https://zissou.infosci.cornell.edu/convokit/documentation/awry.html)
 
-A collection of conversations from Wikipedia talk pages that derail into personal attacks (1,270 conversations, 6,963 comments)  
-Name for download: `conversations-gone-awry-corpus`
+Two related corpora of conversations that derail into antisocial behavior. One corpus consists of Wikipedia talk page conversations that derail into personal attacks as labeled by crowdworkers (4,188 conversations containing 30.021 comments). The other consists of discussion threads on the subreddit ChangeMyView (CMV) that derail into rule-violating behavior as determined by the presence of a moderator intervention (6,842 conversations containing 42,964 comments).  
+Name for download: `conversations-gone-awry-corpus` (Wikipedia version) or `conversations-gone-awry-cmv-corpus` (Reddit CMV version)
 
 ### [Cornell Movie-Dialogs Corpus](https://zissou.infosci.cornell.edu/convokit/documentation/movie.html)
 
@@ -64,7 +67,7 @@ Name for download: `tennis-corpus`
 
 Reddit conversations from over 900k subreddits, arranged by subreddit. A [small subset](https://zissou.infosci.cornell.edu/convokit/documentation/reddit-small.html) sampled from 100 highly active subreddits is also available. 
  
-Name for download: `subreddit-<name_of_subreddit>` for the by subreddit data, `reddit-corpus-small` for the small subset. 
+Name for download: `subreddit-<name_of_subreddit>` for the by-subreddit data, `reddit-corpus-small` for the small subset. 
 
 ### Wikiconv Corpus (WIP)
 
@@ -74,6 +77,12 @@ We are currently working on implementing, as part of the corpus metadata, block 
 In the meantime, raw block data can be downloaded [here](https://zissou.infosci.cornell.edu/convokit/datasets/wikiconv-corpus/blocks.json).
 
 Name for download: `wikiconv-<year>` to download wikiconv data for the specified year.
+
+### [Chromium Conversations Corpus](https://zissou.infosci.cornell.edu/convokit/documentation/chromium.html)
+
+A collection of almost 1.5 million conversations and 2.8 million comments posted by developers reviewing proposed code changes in the Chromium project.
+
+Name for download: `chromium-corpus`
 
 ### ...And your own corpus!
 

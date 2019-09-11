@@ -62,6 +62,11 @@ class Utterance:
     #                      meta=self.meta.copy())
 
     def add_meta(self, key: Hashable, value) -> None:
+        """
+        Add a key-value pair to the Utterance metadata
+
+        :return: None
+        """
         self.meta[key] = value
 
     def __eq__(self, other):

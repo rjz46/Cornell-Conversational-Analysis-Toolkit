@@ -9,11 +9,9 @@ from .utterance import Utterance
 from .conversation import Conversation
 
 def warning(text: str):
-    """
-    Pre-pends a red-colored 'WARNING: ' to [text].
-    :param text: Warning message
-    :return: 'WARNING: [text]'
-    """
+    # Pre-pends a red-colored 'WARNING: ' to [text].
+    # :param text: Warning message
+    # :return: 'WARNING: [text]'
     return '\033[91m'+ "WARNING: " + '\033[0m' + text
 
 pair_delim = '-q-a-'
@@ -748,6 +746,7 @@ class Corpus:
     def print_summary_stats(self) -> None:
         """
         Helper function for printing the number of Users, Utterances, and Conversations in this Corpus
+
         :return: None
         """
         print("Number of Users: {}".format(len(self.all_users)))

@@ -5,6 +5,8 @@ import zipfile
 import json
 from typing import Dict
 from convokit.model import Utterance, Corpus
+import requests
+
 
 # returns a path to the dataset file
 def download(name: str, verbose: bool=True, data_dir: str=None, use_newest_version: bool=True) -> str:
@@ -12,173 +14,47 @@ def download(name: str, verbose: bool=True, data_dir: str=None, use_newest_versi
 
     :param name: Which item to download. Currently supported:
 
-        - "wiki-corpus": Wikipedia Talk Page Conversations Corpus 
+        - "wiki-corpus": Wikipedia Talk Page Conversations Corpus
+            A medium-size collection of conversations from Wikipedia editors' talk pages.
             (see http://www.cs.cornell.edu/~cristian/Echoes_of_power.html)
-        - "supreme-corpus": Supreme Court Dialogs Corpus 
+        - "wikiconv-<year>": Wikipedia Talk Page Conversations Corpus
+            Conversations data for the specified year.
+        - "supreme-corpus": Supreme Court Dialogs Corpus
+            A collection of conversations from the U.S. Supreme Court Oral Arguments.
             (see http://www.cs.cornell.edu/~cristian/Echoes_of_power.html)
-        - "parliament-corpus": UK Parliament Question-Answer Corpus 
+        - "parliament-corpus": UK Parliament Question-Answer Corpus
+            Parliamentary question periods from May 1979 to December 2016
             (see http://www.cs.cornell.edu/~cristian/Asking_too_much.html)
-        - "conversations-gone-awry-corpus": Wiki Personal Attacks Corpus 
+        - "conversations-gone-awry-corpus": Wiki Personal Attacks Corpus
+            Wikipedia talk page conversations that derail into personal attacks as labeled by crowdworkers
             (see http://www.cs.cornell.edu/~cristian/Conversations_gone_awry.html)
-        -  "movie-corpus": Cornell Movie-Dialogs Corpus 
+        - "conversations-gone-awry-cmv-corpus"
+            Discussion threads on the subreddit ChangeMyView (CMV) that derail into rule-violating behavior
+            (see http://www.cs.cornell.edu/~cristian/Conversations_gone_awry.html)
+        -  "movie-corpus": Cornell Movie-Dialogs Corpus
+            A large metadata-rich collection of fictional conversations extracted from raw movie scripts.
             (see https://www.cs.cornell.edu/~cristian/Chameleons_in_imagined_conversations.html)
-        -  "tennis-corpus": Tennis post-match press conferences transcripts 
-            (see http://www.cs.cornell.edu/~liye/tennis.html) 
-        -  "reddit-corpus-small" Reddit Corpus (sampled): 
+        -  "tennis-corpus": Tennis post-match press conferences transcripts
+            Transcripts for tennis singles post-match press conferences for major tournaments between 2007 to 2015
+            (see http://www.cs.cornell.edu/~liye/tennis.html)
+        -  "reddit-corpus-small" Reddit Corpus (sampled):
             A sample from 100 highly-active subreddits
-        -  "subreddit-<subreddit-name>": Subreddit Corpus 
+        -  "subreddit-<subreddit-name>": Subreddit Corpus
             A corpus made from the given subreddit
+        -  "chromium-corpus": Chromium Conversations Corpus
+            A collection of almost 1.5 million conversations and 2.8 million comments posted by developers reviewing proposed code changes in the Chromium project.
     :param verbose: Print checkpoint statements for download
     :param data_dir: Output path of downloaded file (default: ~/.convokit)
     :param use_newest_version: Redownload if new version is found
 
     :return: The path to the downloaded item.
     """
-    top = "http://zissou.infosci.cornell.edu/socialkit/"
 
-    reddit_base_dir = "http://zissou.infosci.cornell.edu/convokit/datasets/subreddit-corpus/"
-    cur_version = {
-        "supreme-corpus": 2,
-        "wiki-corpus": 2,
-        "parliament-corpus": 2,
-        "wikiconv-corpus": 1,
-        "tennis-corpus": 2,
-        "reddit-corpus": 0,
-        "reddit-corpus-small": 2,
-        "conversations-gone-awry-corpus": 3,
-        "conversations-gone-awry-cmv-corpus": 1,
-        "movie-corpus": 1,
-        "subreddit": 0,
-        "wikiconv": 0,
-    }
+    dataset_config = requests.get('https://zissou.infosci.cornell.edu/convokit/datasets/download_config.json').json()
 
-    DatasetURLs = {
-        "supreme-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/supreme-corpus/full.corpus",
-       
-        "wiki-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/wiki-corpus/full.corpus",
-       
-        "parliament-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/parliament-corpus/full.corpus",
+    cur_version = dataset_config['cur_version']
+    DatasetURLs = dataset_config['DatasetURLs']
 
-        "tennis-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/tennis-corpus/full.corpus",
-
-        "movie-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/movie-corpus/full.corpus",
-
-        # "reddit-corpus": top + \
-        #     "datasets/reddit-corpus/full.json",
-
-        # "reddit-corpus-small": top + \
-        #     "datasets/reddit-corpus/small.json",
-
-        "conversations-gone-awry-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/conversations-gone-awry-corpus/full.corpus",
-
-        "conversations-gone-awry-cmv-corpus": "http://zissou.infosci.cornell.edu/convokit/"
-            "datasets/conversations-gone-awry-cmv-corpus/full.corpus",
-        
-        "reddit-corpus-small": reddit_base_dir + "reddit-corpus-small.corpus",
-
-        "reddit-corpus": reddit_base_dir + "reddit-corpus.corpus",
-
-        "parliament-motifs": [
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/answer_arcs.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_arcs.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_fits.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_fits.json.super",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_supersets_arcset_to_super.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_supersets_sets.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_tree_arc_set_counts.tsv",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_tree_downlinks.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_tree_edges.json",
-            top + \
-            "datasets/parliament-corpus/parliament-motifs/question_tree_uplinks.json"
-
-        ],
-        "supreme-motifs": [
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/answer_arcs.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_arcs.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_fits.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_fits.json.super",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_supersets_arcset_to_super.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_supersets_sets.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_tree_arc_set_counts.tsv",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_tree_downlinks.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_tree_edges.json",
-            top + \
-            "datasets/supreme-corpus/supreme-motifs/question_tree_uplinks.json"
-
-        ],
-        "tennis-motifs": [
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/answer_arcs.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_arcs.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_fits.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_fits.json.super",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_supersets_arcset_to_super.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_supersets_sets.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_tree_arc_set_counts.tsv",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_tree_downlinks.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_tree_edges.json",
-            top + \
-            "datasets/tennis-corpus/tennis-motifs/question_tree_uplinks.json"
-
-        ],
-        "wiki-motifs": [
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/answer_arcs.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_arcs.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_fits.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_fits.json.super",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_supersets_arcset_to_super.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_supersets_sets.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_tree_arc_set_counts.tsv",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_tree_downlinks.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_tree_edges.json",
-            top + \
-            "datasets/wiki-corpus/wiki-motifs/question_tree_uplinks.json"
-
-        ]
-
-    }
-    
     if name.startswith("subreddit"):
         subreddit_name = name.split("-")[1]
         # print(subreddit_name)
@@ -189,7 +65,7 @@ def download(name: str, verbose: bool=True, data_dir: str=None, use_newest_versi
         wikiconv_year = name.split("-")[1]
         cur_version[name] = cur_version['wikiconv']
         DatasetURLs[name] = get_wikiconv_year_info(wikiconv_year)
-    else: 
+    else:
         name = name.lower()
 
     custom_data_dir = data_dir
@@ -262,7 +138,7 @@ def download(name: str, verbose: bool=True, data_dir: str=None, use_newest_versi
     return dataset_path
 
 def download_helper(dataset_path: str, url: str, verbose: bool, name: str, downloadeds_path: str) -> None:
-    
+
     if url.lower().endswith(".corpus") or url.lower().endswith(".corpus.zip"):
         dataset_path += ".zip"
 
@@ -284,7 +160,7 @@ def download_helper(dataset_path: str, url: str, verbose: bool, name: str, downl
             if not os.path.exists(corpus_dir):
                 os.mkdir(corpus_dir)
             zipf.extractall(corpus_dir)
-    
+
     elif url.lower().endswith(".corpus"):
         #print(dataset_path)
         with zipfile.ZipFile(dataset_path, "r") as zipf:
@@ -308,10 +184,10 @@ def get_subreddit_info(subreddit_name: str) -> str:
     # base directory of subreddit corpuses
     subreddit_base = "http://zissou.infosci.cornell.edu/convokit/datasets/subreddit-corpus/"
     data_dir = subreddit_base + "corpus-zipped/"
-    
+
     groupings_url = subreddit_base + "subreddit-groupings.txt"
-    groups_fetched = urllib.request.urlopen(groupings_url) 
-    
+    groups_fetched = urllib.request.urlopen(groupings_url)
+
     groups = [line.decode("utf-8").strip("\n") for line in groups_fetched]
 
     for group in groups:
@@ -336,7 +212,7 @@ def subreddit_in_grouping(subreddit: str, grouping_key: str) -> bool:
 
 def get_wikiconv_year_info(year: str) -> str:
     """completes the download link for wikiconv"""
-    
+
     # base directory of wikicon corpuses
     wikiconv_base = "http://zissou.infosci.cornell.edu/convokit/datasets/wikiconv-corpus/"
     data_dir = wikiconv_base + "corpus-zipped/"
@@ -378,4 +254,3 @@ def display_thread(threads: Dict[str, Dict[str, Utterance]], root: str) -> None:
     """
 
     return display_thread_helper(threads[root],root)
-

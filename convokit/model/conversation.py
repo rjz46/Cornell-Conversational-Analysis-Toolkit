@@ -38,6 +38,11 @@ class Conversation:
     meta = property(_get_meta, _set_meta)
 
     def add_meta(self, key: Hashable, value) -> None:
+        """
+        Adds a key-value pair to the Conversation metadata
+
+        :return: None
+        """
         self.meta[key] = value
 
     # Conversation.id property

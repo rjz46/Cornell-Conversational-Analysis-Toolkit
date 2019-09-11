@@ -20,10 +20,17 @@ If you want to contribute directly to the toolkit, one way of doing so that does
 
 Once you have created a Corpus representation of your dataset, follow these steps to request its inclusion in ConvoKit:
 
-- Use `Corpus.dump()` to write the Corpus to disk
-- Locate the resulting folder and compress it into a zip file
-- Open a new issue on GitHub with the "dataset" tag
-- Include the following information in the issue: the name of the dataset, a brief description, licensing information, contact information (for acknowledgement purposes), and a way to access the zipped corpus itself (you can either upload the file to a public file-sharing website and provide the URL, or include the file as an attachment in the issue)
+* Use `Corpus.dump()` to write the Corpus to disk
+* Locate the resulting folder and compress it into a zip file
+* Open a new issue on GitHub with the "dataset" tag
+* Include the following information in the issue: 
+  * the name of the dataset
+  * brief description
+  * the dataset details, i.e. User-, Utterance-, Conversation-, Corpus-level data and metadata (refer to [this](https://zissou.infosci.cornell.edu/convokit/documentation/chromium.html) for an example)
+  * licensing information
+  * publication to be cited with the dataset (if any)
+  * contact information (for acknowledgement purposes)
+  * a way to access the zipped corpus itself (you can either upload the file to a public file-sharing website and provide the URL, or include the file as an attachment in the issue)
 - (Optional, but recommended): Also tell us some statistics about your dataset (e.g., number of conversations and participants) that we can use to advertise it!
 - (Optional, but recommended): You may also include an example script or Jupyter notebook demonstrating the use of the dataset. We will then include this in our examples directory.
 
