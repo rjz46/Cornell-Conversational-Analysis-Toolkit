@@ -86,10 +86,6 @@ Some stats on the data set:
 >>> len(corpus.get_conversation_ids())
 9483
 
-Additional note
----------------
-
-The original data is available ‘here <https://zissou.infosci.cornell.edu/data/coarse_discourse/>`_. 
 
 Contact
 ^^^^^^^
