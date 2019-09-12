@@ -1,0 +1,1 @@
+{"utterances-index": {"post_depth": "<class 'int'>", "majority_type": "<class 'str'>", "majority_link": "<class 'str'>", "annotation-types": "<class 'list'>", "annotation-links": "<class 'list'>", "ups": "<class 'int'>"}, "users-index": {}, "conversations-index": {"subreddit": "<class 'str'>", "url": "<class 'str'>", "title": "<class 'str'>"}, "overall-index": {}, "version": 1}
