@@ -51,8 +51,8 @@ Additional information including the annotations for discourse actions that are 
 * majority type: discourse action type by one of the following: question, answer, announcement, agreement,  appreciation, disagreement, elaboration, humor
 * ann_types (list of annotation types by three annotators)
 * majority_link : link in relation to previous post, none if no relation with previous comment
-	ann_links (list of annotation links by three annotators)
-	ups : number of votes (upvotes - downvotes) for the comment/post 
+* ann_links (list of annotation links by three annotators)
+* ups : number of votes (upvotes - downvotes) for the comment/post 
     
 
 Conversational-level information
