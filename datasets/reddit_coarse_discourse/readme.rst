@@ -89,8 +89,8 @@ Some stats on the data set:
 
 Contact
 ^^^^^^^
-
-Please email any questions to: cristian@cs.cornell.edu (Cristian Danescu-Niculescu-Mizil).
+Ru Zhao, Katy Blumer, Andrew Semmes
+Please email any questions to: {rjz46, ,als452} @cornell.edu (Ru Zhao).
 
 
 
