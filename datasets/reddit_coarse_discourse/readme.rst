@@ -90,7 +90,8 @@ Some stats on the data set:
 Contact
 ^^^^^^^
 Ru Zhao, Katy Blumer, Andrew Semmes
-Please email any questions to: {rjz46, ,als452} @cornell.edu (Ru Zhao).
+
+Please email any questions to: {rjz46, ,als452} @cornell.edu
 
 
 
