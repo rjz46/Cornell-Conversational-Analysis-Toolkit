@@ -91,7 +91,7 @@ Contact
 ^^^^^^^
 Ru Zhao, Katy Blumer, Andrew Semmes
 
-Please email any questions to: {rjz46, ,als452} @cornell.edu
+Please email any questions to: {rjz46, keb297 , als452} @cornell.edu
 
 
 
