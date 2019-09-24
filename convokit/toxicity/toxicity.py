@@ -17,13 +17,19 @@ class Toxicity(Transformer):
 
     The values returned for the score is in the range 0-1
         0 - 1 (lowest toxicity - highest toxicity)
-                
     In addition to the utterance-level toxicity score, the average toxicity score for each
     conversation is also computed and stored in the conversation-level metadata.
     """
 
 
-    def __init__(self):
+    def __init__(self, api_key: str=None, toxicity_json_path: str=None, toxicity_path_to_save: str=None):
+        if api_key:
+            print("WARNING api key is not currently used; uses hardcoded key.")
+        if api_key and toxicity_json_path:
+            raise RuntimeError("Nonempty toxicity_json_path was passed, but will be ignored because api_key was set.")
+        self.api_key = api_key
+        self.toxicity_json_path = toxicity_json_path
+        self.toxicity_path_to_save = toxicity_path_to_save
         pass
 
     @staticmethod
@@ -39,7 +45,7 @@ class Toxicity(Transformer):
         ]
 
         text = text.encode('utf-8')
-        
+
         line = ''
         for a in text:
             a = chr(a)
@@ -92,22 +98,26 @@ class Toxicity(Transformer):
             returns the modified Corpus).
         """
 
+        if self.toxicity_json_path:
+            with open(self.toxicity_json_path, 'r') as f:
+                toxicity_scores = json.load(f)
+
+        scores_to_save = {}
         for convo in tqdm(list(corpus.iter_conversations())):
 
             convo_scores = 0
             count = 0
-
             for utt in convo.iter_utterances():
-
                 '''
                     rerunning this takes over a day for our 110k+ comments since it uses an api with limited query rate,
                     we'll load them from tox_dictionary.py that was pre-fetched,
                     for others using our transformer, please run self._get_toxicity over the utterances on their corpus.
                 '''
-
-                #utt_score = self._get_toxicity(utt.text)
-
-                utt_score = toxicity_scores[utt.id]
+                if self.api_key:
+                    utt_score = self._get_toxicity(utt.text)
+                    scores_to_save[utt.id] = utt_score
+                else:
+                    utt_score = toxicity_scores[utt.id]
 
                 convo_scores+=utt_score
                 count+=1
@@ -116,6 +126,10 @@ class Toxicity(Transformer):
                 utt.add_meta('toxicity', utt_score)
 
             convo.add_meta('averagetoxicity', convo_scores/count)
+
+        if self.toxicity_path_to_save:
+            with open(self.toxicity_path_to_save, 'w') as f:
+                json.dump(scores_to_save, f)
 
         return corpus
 
