@@ -21,6 +21,15 @@ class Toxicity(Transformer):
     implemented more efficiently than doing the steps separately.
     """
 
+    #headers and parameters for perspective api call
+    headers = {
+        'Content-Type': 'application/json',
+    }
+
+    params = (
+        ('key', '[api-key]'),
+    )
+
     def __init__(self):
         pass
 
