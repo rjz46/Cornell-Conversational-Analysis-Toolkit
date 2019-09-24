@@ -1,67 +1,63 @@
 from convokit.model import Corpus, User
 from convokit.transformer import Transformer
-from toxicity_dictionary import toxicity_scores
+from convokit.toxicity.tox_dictionary import toxicity_scores
+import requests
+import json
+import time
+from tqdm import tqdm_notebook as tqdm
+
 
 class Toxicity(Transformer):
     """
-    Abstract base class for modules that take in a Corpus and modify the Corpus
-    and/or extend it with additional information, imitating the scikit-learn
-    Transformer API. Exposes ``fit()`` and ``transform()`` methods. ``fit()`` performs any
-    necessary precomputation (or “training” in machine learning parlance) while
-    ``transform()`` does the work of actually computing the modification and
-    applying it to the corpus.
+    Performs toxicity classification on each utterance of a conversation based on
+    the text of the conversation. It uses Google's Perspective API for the classification.
+    The text are preprocessed to remove any extraneous symbols or characters that might break
+    the API call. The text is then sent to the API and retrieves a toxicity score.
+    The toxicity score is stored in the utterance level metadata.
 
-    All subclasses must implement ``transform()``;
-    subclasses that require precomputation should also override ``fit()``, which by
-    default does nothing. Additionally, the interface also exposes a
-    ``fit_transform()`` method that does both steps on the same Corpus in one line.
-    By default this is implemented to simply call ``fit()`` followed by ``transform()``,
-    but designers of Transformer subclasses may also choose to overwrite the
-    default implementation in cases where the combined operation can be
-    implemented more efficiently than doing the steps separately.
+    The values returned for the score is in the range 0-1
+        0 - 1 (lowest toxicity - highest toxicity)
+                
+    In addition to the utterance-level toxicity score, the average toxicity score for each
+    conversation is also computed and stored in the conversation-level metadata.
     """
 
-    #headers and parameters for perspective api call
-    headers = {
-        'Content-Type': 'application/json',
-    }
-
-    params = (
-        ('key', '[api-key]'),
-    )
 
     def __init__(self):
         pass
 
     @staticmethod
-    def _preprocess(text):
-        body_or_title = text.encode('utf-8')
-        result = ''
-        for a in body_or_title:
+    def _get_toxicity(text):
+
+        #headers and parameters for perspective api call
+        headers = {
+            'Content-Type': 'application/json',
+        }
+
+        params = [
+            (('key', 'AIzaSyDyRDMXjs3UFWxmsAcyBnkTG5dLgK4Jjzw'), ) 
+        ]
+
+        text = text.encode('utf-8')
+        
+        line = ''
+        for a in text:
             a = chr(a)
             if a=='[':
                 f=False
                 break
             if a==' ' or (a<='Z' and a>='A') or (a<='z' and a>='a') or (a<='9' and a>='0') or a=='?' or a=='.':
-                result +=a
-        return result
+                line +=a
 
-    @staticmethod
-    def _get_toxicity(self, line):
-
-        line = self._preprocess(line)
-
-        global get_toxicity_count
 
         if len(line) > 0:
             try:
                 data = '{comment: {text:"'+line+'"}, languages: ["en"], requestedAttributes: {TOXICITY:{}} }'
                 response = requests.post('https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze', headers=headers, params=params[0], data=data)
                 j = json.loads(response.text)
-                get_toxicity_count +=1
                 return j['attributeScores']['TOXICITY']['summaryScore']['value']
             except:
-                print("ERROR1!!!!!!!!!!!!!!!!!!!!" + str(get_toxicity_count))
+                print("ERROR1!!!!!!!!!!!!!!!!!!!!")
                 try:
                     time.sleep(2)
                     data = '{comment: {text:"'+line+'"}, languages: ["en"], requestedAttributes: {TOXICITY:{}} }'
@@ -70,7 +66,7 @@ class Toxicity(Transformer):
 
                     return j['attributeScores']['TOXICITY']['summaryScore']['value']
                 except:
-                    print("ERROR2!!!!!!!!!!!!!!!!!!!!" + str(get_toxicity_count))
+                    print("ERROR2!!!!!!!!!!!!!!!!!!!!")
 
                     try:
                         time.sleep(2)
@@ -80,10 +76,7 @@ class Toxicity(Transformer):
 
                         return j['attributeScores']['TOXICITY']['summaryScore']['value']
                     except:
-
-                        print("ERROR3" + str(get_toxicity_count))
-                        #blacklist.append(current_target)
-
+                        print("ERROR3")
                         print(j)
         return 0.0
 
@@ -99,21 +92,22 @@ class Toxicity(Transformer):
             returns the modified Corpus).
         """
 
-        for convo in corpus.iter_conversations():
+        for convo in tqdm(corpus.iter_conversations()):
+
             convo_scores = 0
             count = 0
 
             for utt in convo.iter_utterances():
+
                 '''
                     rerunning this takes over a day for our 110k+ comments since it uses an api with limited query rate,
-                    we'll load them from toxicity_dictionary.json that was pre-fetched,
-                    for others using our transformer, please run self.get_toxicity over the utterances on their corpus.
+                    we'll load them from tox_dictionary.py that was pre-fetched,
+                    for others using our transformer, please run self._get_toxicity over the utterances on their corpus.
                 '''
 
-                #utt_score = self._get_toxicity(utt.text)
+                utt_score = self._get_toxicity(utt.text)
 
-
-                utt_score = toxicity_scores[utt.id]
+                #utt_score = toxicity_scores[utt.id]
 
                 convo_scores+=utt_score
                 count+=1
