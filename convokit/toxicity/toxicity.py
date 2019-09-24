@@ -1,6 +1,5 @@
 from convokit.model import Corpus, User
 from convokit.transformer import Transformer
-from convokit.toxicity.tox_dictionary import toxicity_scores
 import requests
 import json
 import time
@@ -24,9 +23,13 @@ class Toxicity(Transformer):
 
     def __init__(self, api_key: str=None, toxicity_json_path: str=None, toxicity_path_to_save: str=None):
         if api_key:
-            print("WARNING api key is not currently used; uses hardcoded key.")
+            print("WARNING: api key is not currently used; uses hardcoded key.")
         if api_key and toxicity_json_path:
             raise RuntimeError("Nonempty toxicity_json_path was passed, but will be ignored because api_key was set.")
+        if not (api_key or toxicity_json_path):
+            raise RuntimeError("""Must pass either api_key or toxicity_json_path; \
+            if you were relying on the tox_dictionary import, now use \
+            'toxicity_json_path=\"convokit/toxicity/data/reddit_coarse_discourse.json\"'""")
         self.api_key = api_key
         self.toxicity_json_path = toxicity_json_path
         self.toxicity_path_to_save = toxicity_path_to_save
@@ -41,7 +44,7 @@ class Toxicity(Transformer):
         }
 
         params = [
-            (('key', 'AIzaSyDyRDMXjs3UFWxmsAcyBnkTG5dLgK4Jjzw'), ) 
+            (('key', 'AIzaSyDyRDMXjs3UFWxmsAcyBnkTG5dLgK4Jjzw'), )
         ]
 
         text = text.encode('utf-8')
@@ -100,7 +103,10 @@ class Toxicity(Transformer):
 
         if self.toxicity_json_path:
             with open(self.toxicity_json_path, 'r') as f:
-                toxicity_scores = json.load(f)
+                toxicity_scores_dict = json.load(f)
+        else:
+            toxicity_scores_dict = toxicity_scores
+
 
         scores_to_save = {}
         for convo in tqdm(list(corpus.iter_conversations())):
@@ -117,7 +123,7 @@ class Toxicity(Transformer):
                     utt_score = self._get_toxicity(utt.text)
                     scores_to_save[utt.id] = utt_score
                 else:
-                    utt_score = toxicity_scores[utt.id]
+                    utt_score = toxicity_scores_dict[utt.id]
 
                 convo_scores+=utt_score
                 count+=1
