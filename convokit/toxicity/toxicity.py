@@ -1,6 +1,6 @@
 from convokit.model import Corpus, User
 from convokit.transformer import Transformer
-from tox_dictionary import toxicity_scores
+from toxicity_dictionary import toxicity_scores
 
 class Toxicity(Transformer):
     """
@@ -9,7 +9,7 @@ class Toxicity(Transformer):
     Transformer API. Exposes ``fit()`` and ``transform()`` methods. ``fit()`` performs any
     necessary precomputation (or “training” in machine learning parlance) while
     ``transform()`` does the work of actually computing the modification and
-    applying it to the corpus. 
+    applying it to the corpus.
 
     All subclasses must implement ``transform()``;
     subclasses that require precomputation should also override ``fit()``, which by
@@ -35,9 +35,9 @@ class Toxicity(Transformer):
 
     @staticmethod
     def _preprocess(text):
-        body_or_title = text.encode('utf-8')        
+        body_or_title = text.encode('utf-8')
         result = ''
-        for a in body_or_title: 
+        for a in body_or_title:
             a = chr(a)
             if a=='[':
                 f=False
@@ -48,9 +48,9 @@ class Toxicity(Transformer):
 
     @staticmethod
     def _get_toxicity(self, line):
-    
+
         line = self._preprocess(line)
-        
+
         global get_toxicity_count
 
         if len(line) > 0:
@@ -67,7 +67,7 @@ class Toxicity(Transformer):
                     data = '{comment: {text:"'+line+'"}, languages: ["en"], requestedAttributes: {TOXICITY:{}} }'
                     response = requests.post('https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze', headers=headers, params=params[0], data=data)
                     j = json.loads(response.text)
-                    
+
                     return j['attributeScores']['TOXICITY']['summaryScore']['value']
                 except:
                     print("ERROR2!!!!!!!!!!!!!!!!!!!!" + str(get_toxicity_count))
@@ -77,10 +77,10 @@ class Toxicity(Transformer):
                         data = '{comment: {text:"'+line+'"}, languages: ["en"], requestedAttributes: {TOXICITY:{}} }'
                         response = requests.post('https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze', headers=headers, params=params[0], data=data)
                         j = json.loads(response.text)
-                        
+
                         return j['attributeScores']['TOXICITY']['summaryScore']['value']
                     except:
-                
+
                         print("ERROR3" + str(get_toxicity_count))
                         #blacklist.append(current_target)
 
@@ -93,7 +93,7 @@ class Toxicity(Transformer):
 
         :param corpus: the Corpus to transform
 
-        :return: modified version of the input Corpus. Note that unlike the 
+        :return: modified version of the input Corpus. Note that unlike the
             scikit-learn equivalent, ``transform()`` operates inplace on the Corpus
             (though for convenience and compatibility with scikit-learn, it also
             returns the modified Corpus).
@@ -103,9 +103,9 @@ class Toxicity(Transformer):
             convo_scores = 0
             count = 0
 
-            for utt in convo.iter_utterances():        
+            for utt in convo.iter_utterances():
                 '''
-                    rerunning this takes over a day for our 110k+ comments since it uses an api with limited query rate, 
+                    rerunning this takes over a day for our 110k+ comments since it uses an api with limited query rate,
                     we'll load them from toxicity_dictionary.json that was pre-fetched,
                     for others using our transformer, please run self.get_toxicity over the utterances on their corpus.
                 '''
@@ -114,7 +114,7 @@ class Toxicity(Transformer):
 
 
                 utt_score = toxicity_scores[utt.id]
-                
+
                 convo_scores+=utt_score
                 count+=1
 
@@ -129,7 +129,7 @@ class Toxicity(Transformer):
         later perform the actual transformation step.
 
         :param corpus: the Corpus to use for fitting
-        
+
         :return: the fitted Transformer
         """
 
