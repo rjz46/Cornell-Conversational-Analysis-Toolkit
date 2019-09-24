@@ -91,9 +91,16 @@ class toxicity(Transformer):
 
             for utt in convo.iter_utterances():
                 
-                #utt_score = self._get_toxicity(utt.text) super slow
+                #utt_score = self._get_toxicity(utt.text)
 
-                #
+                '''
+                    rerunning this takes over a day for our 110k+ comments since it uses an api with limited query rate, 
+                    we'll load them from toxicity_dictionary.json that was pre-fetched,
+                    for others using our transformer, please run self.get_toxicity over the utterances.
+                '''
+
+                with open('toxicity_dictionary.json', 'w') as outfile:
+                    json.dump(toxicity_scores, outfile)
 
                 convo_scores+=utt_score
                 count+=1
