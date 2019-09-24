@@ -36,3 +36,4 @@ venv-triadmotif/
 datasets/reddit_coarse_discourse-corpus/corpus/index.json
 datasets/reddit_coarse_discourse-corpus/corpus/users.json
 datasets/reddit_coarse_discourse-corpus/corpus/utterances.jsonl
+venv_c/
