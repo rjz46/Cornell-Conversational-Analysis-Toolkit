@@ -92,7 +92,7 @@ class Toxicity(Transformer):
             returns the modified Corpus).
         """
 
-        for convo in tqdm(corpus.iter_conversations()):
+        for convo in tqdm(list(corpus.iter_conversations())):
 
             convo_scores = 0
             count = 0
@@ -105,13 +105,14 @@ class Toxicity(Transformer):
                     for others using our transformer, please run self._get_toxicity over the utterances on their corpus.
                 '''
 
-                utt_score = self._get_toxicity(utt.text)
+                #utt_score = self._get_toxicity(utt.text)
 
-                #utt_score = toxicity_scores[utt.id]
+                utt_score = toxicity_scores[utt.id]
 
                 convo_scores+=utt_score
                 count+=1
 
+                #print (utt_score)
                 utt.add_meta('toxicity', utt_score)
 
             convo.add_meta('averagetoxicity', convo_scores/count)
