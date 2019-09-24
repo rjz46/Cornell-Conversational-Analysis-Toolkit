@@ -35,9 +35,8 @@ class Sequence(Transformer):
             returns the modified Corpus).
         """
 
-        utterance_corpus = corpus.iter_utterances()
-
-        for convo in convos:
+        #counter = 0
+        for convo in corpus.iter_conversations():
             
             temp_chain = []
 
@@ -47,7 +46,9 @@ class Sequence(Transformer):
                     temp_chain.append(utt.id)
             
             if len(temp_chain) > 0:
-                                
+                
+                convo.add_meta('chain', random.choice(temp_chain))
+                
                 uttid = random.choice(temp_chain)
                 chosen_chain= []
                 chosen_chain.append(uttid)
@@ -60,8 +61,9 @@ class Sequence(Transformer):
                     else:
                         break
                         
-                counter+=1
-                convo.add_meta('chain', chosen_chain.reverse())
+                #counter+=1
+                chosen_chain.reverse()
+                convo.add_meta('chain', chosen_chain)
             else:
                 convo.add_meta('chain', None)
 
