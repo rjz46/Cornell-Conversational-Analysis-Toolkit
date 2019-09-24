@@ -30,3 +30,6 @@ venv/
 *.iml
 venv-triadmotif/
 .DS_Store
+*.DS_Store
+.DS_Store*
+.DS_Store
