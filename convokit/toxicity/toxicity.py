@@ -104,8 +104,6 @@ class Toxicity(Transformer):
         if self.toxicity_json_path:
             with open(self.toxicity_json_path, 'r') as f:
                 toxicity_scores_dict = json.load(f)
-        else:
-            toxicity_scores_dict = toxicity_scores
 
 
         scores_to_save = {}
