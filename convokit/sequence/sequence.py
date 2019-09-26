@@ -6,17 +6,11 @@ import random
 
 class Sequence(Transformer):
     """
-    Performs toxicity classification on each utterance of a conversation based on
-    the text of the conversation. It uses Google's Perspective API for the classification.
-    The text are preprocessed to remove any extraneous symbols or characters that might break
-    the API call. The text is then sent to the API and retrieves a toxicity score.
-    The toxicity score is stored in the utterance level metadata.
+    Finds a random sequence in a conversation that has more than three comments, annotate 
+    the sequence by discourse actions, user after toxicity transformer. The transformer is
+    used to randomly sample discourse sequences and get their corresponding toxicity scores. 
+    This prevents overlap when sampling sequences in a tree structure.
 
-    The values returned for the score is in the range 0-1
-        0 - 1 (lowest toxicity - highest toxicity)
-                
-    In addition to the utterance-level toxicity score, the average toxicity score for each
-    conversation is also computed and stored in the conversation-level metadata.
     """
 
 
@@ -52,18 +46,27 @@ class Sequence(Transformer):
                 uttid = random.choice(temp_chain)
                 chosen_chain= []
                 chosen_chain.append(uttid)
+                
+
 
                 utt = convo.get_utterance(uttid)
+
+                chosen_chain_tox = []
+                chosen_chain_tox.append(utt.meta['toxicity'])
+
                 while(utt.meta['post_depth'] > 0):
                     if utt.reply_to in corpus.utterances:
                         utt = convo.get_utterance(utt.reply_to)
                         chosen_chain.append(utt.id)
+                        chosen_chain_tox.append(utt.meta['toxicity'])
                     else:
                         break
                         
                 #counter+=1
                 chosen_chain.reverse()
+                chosen_chain_tox.reverse()
                 convo.add_meta('chain', chosen_chain)
+                convo.add_meta('chain_tox', chosen_chain_tox)
             else:
                 convo.add_meta('chain', None)
 
